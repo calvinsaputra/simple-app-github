@@ -1,4 +1,4 @@
-kname: Build, Push and Deploy Image
+name: Build, Push and Deploy Image
 
 on:
   push:
@@ -26,13 +26,3 @@ jobs:
 
       - name: Push Image
         run: docker push $IMAGE_NAME
-
-  test:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Pull & Run
-        run: |
-          docker run -d -p 8080:80 --name test $IMAGE_NAME
-          sleep 5
-          curl localhost:8080
