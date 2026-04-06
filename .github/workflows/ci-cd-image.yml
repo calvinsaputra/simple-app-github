@@ -1,0 +1,33 @@
+name: Build, Push and Deploy Docker Image
+
+on: [push]
+
+env:
+  IMAGE_NAME: "ghcr.io/calvinsaputra/nginx-calvinsaputra"
+
+jobs:
+  build-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: Login to GHCR
+        run: echo ${{ secrets.TOKEN_GITHUB }} | docker login ghcr.io -u calvinsaputra --password-stdin
+
+      - name: Push Image
+        run: docker push $IMAGE_NAME
+
+  deploy:
+    needs: build-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: echo ${{ secrets.TOKEN_GITHUB }} | docker login ghcr.io -u calvinsaputra --password-stdin
+
+      - name: Deploy
+        run: docker compose up -d
