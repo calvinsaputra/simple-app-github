@@ -1,23 +1,36 @@
-name: Build, Push and Deploy Image
+name: Build, Push and Deploy Docker Image
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
 
 env:
   IMAGE_NAME: ghcr.io/calvinsaputra/nginx-calvinsaputra
 
 jobs:
-  build:
+  build-push-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Login GHCR
+      - name: Login to GHCR
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build image
+      - name: Build Image
         run: docker build -t $IMAGE_NAME .
 
-      - name: Push image
+      - name: Push Image
         run: docker push $IMAGE_NAME
+
+  deploy:
+    needs: build-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH (dummy/local docker compose)
+        run: echo "Deploy skipped / handled by server"
